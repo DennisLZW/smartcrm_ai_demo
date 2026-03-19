@@ -1,10 +1,26 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { Suspense, useMemo, useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-background px-4">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm">
+            Loading login...
+          </div>
+        </main>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = useMemo(() => searchParams.get("from") || "/dashboard", [searchParams]);

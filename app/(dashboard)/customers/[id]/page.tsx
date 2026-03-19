@@ -23,11 +23,6 @@ export default async function CustomerDetailPage({ params }: PageProps) {
   }
 
   const activities = await listActivitiesByCustomer(id);
-  const initialActivities = activities.map((a: any) => ({
-    ...a,
-    occurredAt:
-      a.occurredAt instanceof Date ? a.occurredAt.toISOString() : a.occurredAt,
-  }));
 
   return (
     <div className="space-y-6">
@@ -81,7 +76,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
         <div className="space-y-4">
           <AiPanels customerId={id} customerEmail={customer.email} />
           <EmailLogsPanel customerId={id} />
-          <ActivitiesPanel customerId={id} initialActivities={initialActivities} />
+          <ActivitiesPanel customerId={id} initialActivities={activities} />
         </div>
       </div>
     </div>

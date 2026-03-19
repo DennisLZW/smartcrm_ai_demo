@@ -16,7 +16,8 @@ function getGeminiApiKey() {
 
 export async function geminiGenerateJsonText(args: GeminiGenerateJsonArgs) {
   const apiKey = getGeminiApiKey();
-  const model = args.model ?? process.env.GEMINI_MODEL ?? "gemini-1.5-flash";
+  const rawModel = args.model ?? process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+  const model = rawModel.startsWith("models/") ? rawModel.slice("models/".length) : rawModel;
 
   const url = new URL(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(

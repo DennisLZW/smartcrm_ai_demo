@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { listStaleCustomers } from "../../../../src/services/dashboard-service";
 
+type StaleCustomerRow = {
+  id: string;
+  name: string;
+  company: string | null;
+  status: string;
+  createdAt: Date;
+  lastActivityAt: Date | null;
+};
+
 export default async function StaleCustomersPage() {
   const staleDays = 14;
-  const customers = await listStaleCustomers(staleDays, 200);
+  const customers = (await listStaleCustomers(staleDays, 200)) as StaleCustomerRow[];
 
   return (
     <div className="space-y-4">
@@ -40,7 +49,7 @@ export default async function StaleCustomersPage() {
                 </td>
               </tr>
             ) : (
-              customers.map((c) => (
+              customers.map((c: StaleCustomerRow) => (
                 <tr key={c.id} className="border-t border-border/60">
                   <td className="px-4 py-2">
                     <Link href={`/customers/${c.id}`} className="font-medium hover:underline">

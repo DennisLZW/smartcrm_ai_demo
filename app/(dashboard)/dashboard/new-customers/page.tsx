@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { listNewCustomers } from "../../../../src/services/dashboard-service";
 
+type NewCustomerRow = {
+  id: string;
+  name: string;
+  email: string | null;
+  company: string | null;
+  status: string;
+  createdAt: Date;
+};
+
 export default async function NewCustomersPage() {
-  const customers = await listNewCustomers(7, 200);
+  const customers = (await listNewCustomers(7, 200)) as NewCustomerRow[];
 
   return (
     <div className="space-y-4">
@@ -39,7 +48,7 @@ export default async function NewCustomersPage() {
                 </td>
               </tr>
             ) : (
-              customers.map((c) => (
+              customers.map((c: NewCustomerRow) => (
                 <tr key={c.id} className="border-t border-border/60">
                   <td className="px-4 py-2">
                     <Link href={`/customers/${c.id}`} className="font-medium hover:underline">

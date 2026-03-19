@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         status: customer.status,
         notes: customer.notes,
       },
-      activities: activities.map((a) => ({
+    activities: activities.map((a: { type: string; content: string; occurredAt: Date }) => ({
         type: a.type,
         content: a.content,
         occurredAt: a.occurredAt,

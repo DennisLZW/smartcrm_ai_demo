@@ -1,6 +1,21 @@
 import { db } from "../lib/db";
 import { listRecentActivities } from "./activity-service";
 
+type LastByCustomerRow = {
+  customerId: string;
+  _max: { occurredAt: Date | null };
+};
+
+type CustomerRow = {
+  id: string;
+  name: string;
+  email?: string | null;
+  company: string | null;
+  status: string;
+  notes?: string | null;
+  createdAt: Date;
+};
+
 export async function getDashboardData(options?: {
   recentActivityLimit?: number;
   staleDays?: number;
@@ -80,9 +95,9 @@ export async function getDashboardData(options?: {
     }),
   ]);
 
-  const staleByLastActivity = lastByCustomer
-    .filter((x) => x._max.occurredAt && x._max.occurredAt < staleCutoff)
-    .map((x) => ({ customerId: x.customerId, lastActivityAt: x._max.occurredAt! }));
+  const staleByLastActivity = (lastByCustomer as LastByCustomerRow[])
+    .filter((x: LastByCustomerRow) => x._max.occurredAt && x._max.occurredAt < staleCutoff)
+    .map((x: LastByCustomerRow) => ({ customerId: x.customerId, lastActivityAt: x._max.occurredAt! }));
 
   const staleCount = noActivityCount + staleByLastActivity.length;
 
@@ -100,7 +115,7 @@ export async function getDashboardData(options?: {
   });
 
   const remaining = Math.max(0, staleLimit - noActivityCustomers.length);
-  const staleIds = staleByLastActivity.slice(0, remaining).map((x) => x.customerId);
+  const staleIds = staleByLastActivity.slice(0, remaining).map((x: { customerId: string }) => x.customerId);
 
   const staleCustomersWithActivity =
     staleIds.length === 0
@@ -117,12 +132,12 @@ export async function getDashboardData(options?: {
         });
 
   const lastActivityMap = new Map(
-    staleByLastActivity.map((x) => [x.customerId, x.lastActivityAt] as const),
+    staleByLastActivity.map((x: { customerId: string; lastActivityAt: Date }) => [x.customerId, x.lastActivityAt] as const),
   );
 
   const staleCustomers = [
-    ...noActivityCustomers.map((c) => ({ ...c, lastActivityAt: null as Date | null })),
-    ...staleCustomersWithActivity.map((c) => ({
+    ...noActivityCustomers.map((c: CustomerRow) => ({ ...c, lastActivityAt: null as Date | null })),
+    ...staleCustomersWithActivity.map((c: CustomerRow) => ({
       ...c,
       lastActivityAt: lastActivityMap.get(c.id) ?? null,
     })),
@@ -187,12 +202,12 @@ export async function listStaleCustomers(days = 14, limit = 100, ownerId?: strin
     }),
   ]);
 
-  const staleByLastActivity = lastByCustomer
-    .filter((x) => x._max.occurredAt && x._max.occurredAt < staleCutoff)
-    .map((x) => ({ customerId: x.customerId, lastActivityAt: x._max.occurredAt! }));
+  const staleByLastActivity = (lastByCustomer as LastByCustomerRow[])
+    .filter((x: LastByCustomerRow) => x._max.occurredAt && x._max.occurredAt < staleCutoff)
+    .map((x: LastByCustomerRow) => ({ customerId: x.customerId, lastActivityAt: x._max.occurredAt! }));
 
   const remaining = Math.max(0, limit - noActivityCustomers.length);
-  const staleIds = staleByLastActivity.slice(0, remaining).map((x) => x.customerId);
+  const staleIds = staleByLastActivity.slice(0, remaining).map((x: { customerId: string }) => x.customerId);
 
   const staleCustomersWithActivity =
     staleIds.length === 0
@@ -211,12 +226,12 @@ export async function listStaleCustomers(days = 14, limit = 100, ownerId?: strin
         });
 
   const lastActivityMap = new Map(
-    staleByLastActivity.map((x) => [x.customerId, x.lastActivityAt] as const),
+    staleByLastActivity.map((x: { customerId: string; lastActivityAt: Date }) => [x.customerId, x.lastActivityAt] as const),
   );
 
   return [
-    ...noActivityCustomers.map((c) => ({ ...c, lastActivityAt: null as Date | null })),
-    ...staleCustomersWithActivity.map((c) => ({
+    ...noActivityCustomers.map((c: CustomerRow) => ({ ...c, lastActivityAt: null as Date | null })),
+    ...staleCustomersWithActivity.map((c: CustomerRow) => ({
       ...c,
       lastActivityAt: lastActivityMap.get(c.id) ?? null,
     })),
